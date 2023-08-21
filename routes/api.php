@@ -19,5 +19,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('transfers-made/{id1}/{id2}', [TransferController::class, 'getValue']);
 Route::get('value-amount/{id}', [TransferController::class, 'getAmount']);
+Route::post('transfers-made/{id1}/{id2}', [TransferController::class, 'getValue']);

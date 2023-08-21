@@ -13,19 +13,36 @@ class TransferController extends Controller
 
         $user = User::find($id);
         $amount = Saldos::where('user_id', $id)->first();
-        $a = $amount->amount;
+        $saldoAtual = $amount->amount;
 
-        //dd($amount);
-        return response()->json($amount);
+        return response()->json("Saldo Atual do usuário " . $user->name . " é R$ ". $saldoAtual);
     }
 
-    public function getValue($id1, $id2) {
+    public function getValue(Request $req, $id1, $id2) {
 
-        $saldo1 = Saldos::select('amount')->where('user_id', $id1)->first();
-        $saldo2 = Saldos::select('amount')->where('user_id', $id2)->first();
+        $saldoId1 = Saldos::find($id1);
+        $saldoId2 = Saldos::find($id2);
+        $reqAmount = $req->all();
+        $amountId = $saldoId1->amount;
+        $amountReq = $reqAmount['amount'];
 
-        //logica de transferencia de saldo de um cliente pro outro
-        //valida se o usuario tem saldo suficiente antes da transferencia 
+        //valida se o usuario tem saldo suficiente antes da transferencia
+        if($amountId >= $amountReq) {
+            
+            //dd($reqAmount['amount']);
+            //logica da transferencia por id na url: {id1}/{id2} e no corpo da req, o valor monetario
+            $saldoId1->amount = $saldoId1->amount - $reqAmount['amount'];
+            $saldoId1->save();
+            $saldoId2->amount = $saldoId2->amount + $reqAmount['amount'];
+            $saldoId2->save();
+
+            return response()->json("Transferência realizada com sucesso, no valor de R$" . $reqAmount['amount'] . " reais!");
+        } else {
+
+            return response()->json("Erro: Saldo insuficiente para realizar transferencia!", 400);
+        }
+
+        //valida se o usuario tem saldo suficiente antes da transferencia
 
     }
 }
